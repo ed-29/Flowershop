@@ -1,0 +1,53 @@
+
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Roses and Perfume",
+      "price": 19.99,
+      "images": ["./p.jpg"]
+    },
+    {
+      "id": 2,
+      "name": "Flowers With Teddy",
+      "price": 14.99,
+      "images": ["./p2.jpg"]
+    },
+    {
+      "id": 3,
+      "name": "pink boho",
+      "price": 9.99,
+      "images": ["./p3.jpg"]
+    },
+    {
+      "id": 4,
+      "name": "pink heart",
+      "price": 9.99,
+      "images": ["./p4.jpg"]
+    },
+    {
+      "id": 5,
+      "name": "Red Classics",
+      "price": 9.99,
+      "images": ["./p5.jpg"]
+    },
+    {
+      "id": 6,
+      "name": "Pink Roses with Perfume",
+      "price": 12.99,
+      "images": ["./p6.jpg"]
+    },
+    {
+      "id": 7,
+      "name": "White Roses",
+      "price": 19.99,
+      "images": ["./p7.jpg"]
+    },
+    {
+      "id": 8,
+      "name": "Happy Birthday",
+      "price": 9.99,
+      "images": ["./p9.jpg"]
+    }
+  ]
+}

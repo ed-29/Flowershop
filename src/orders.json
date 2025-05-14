@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "image": "/flowers/bouquet1.jpg",
+    "deliveryDate": "2025-05-20",
+    "receiverName": "Lilian",
+    "note": "Happy Birthday!"
+  },
+  {
+    "id": 2,
+    "image": "/flowers/bouquet2.jpg",
+    "deliveryDate": "2025-05-22",
+    "receiverName": "James",
+    "note": "Congratulations!"
+  }
+]

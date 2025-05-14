@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Bokor&family=Cinzel:wght@400..900&family=Dancing+Script:wght@400..700&display=swap');
+
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
+.no-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;  
+}
+
+:root{
+  @apply bg-pink-50 
+  
+}
+body{
+  @apply  items-center justify-center
+
+
+}
+  
+header {
+  @apply p-3 h-[7vh] fixed w-full  flex  items-center top-0 z-[1000] justify-between;
+}
+
+header a {
+  @apply no-underline text-[1.5rem] p-2 m-2 hover:bg-orange-100 hover:rounded-b-xl transition-all duration-150;
+}
+
+.logo {
+  @apply self-center  inline-block ;
+}
+
+.selected {
+  @apply bg-orange-100 rounded-b-xl ;
+}
+
+.links {
+  @apply flex mx-auto hidden sm:justify-center sm:block sm:flex lg:w-1/2 transition-all duration-150;
+}
+
+/* .links button{
+  @apply p-2 w-full inline-block m-2  hover:bg-orange-100 hover:rounded-b-xl transition-all duration-150;
+} */
+.user{
+  @apply inline-block justify-center
+}
+.user button{
+  @apply inline-block rounded-4xl p-2 w-[7vh] m-2 hover:bg-orange-100
+}
+
+.hero{
+  @apply bg-[url('/bg2.jpg')]  bg-cover bg-center h-screen w-full flex items-center justify-center min-h-screen
+}
+
+.hero img{
+  @apply w-200 
+}
+#catalogue{
+  @apply justify-center text-center py-12 px-4 bg-white
+}
+
+.catalogue-container{
+  @apply max-w-6xl mx-auto
+}
+.catalogue-container h1{
+ @apply text-3xl font-bold m-8 text-center text-pink-800
+}
+.BesatsellerContainer{
+  @apply flex overflow-scroll
+}
+.cards-container{
+  @apply grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4
+}
+.card{
+  @apply relative overflow-hidden rounded-xl shadow-lg
+}
+.product-info{
+  @apply absolute bottom-0 left-0 right-0 bg-orange-100/40 backdrop-blur-md p-4 text-center transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300
+} 
+.product-info button{
+  @apply mt-2 bg-pink-500 hover:bg-pink-600 text-white py-1 px-4 rounded-lg transition-all duration-200
+} 
+
+
+
+
+
