@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import index.css;
 import productData from "../images.json";
 import packageData from "../packages.json";
 
