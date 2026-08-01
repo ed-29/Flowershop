@@ -1,0 +1,53 @@
+
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Roses and Lillies",
+      "price": 19.99,
+      "images": ["./f1.jpg"]
+    },
+    {
+      "id": 2,
+      "name": "Tulip",
+      "price": 14.99,
+      "images": ["./f2.jpg"]
+    },
+    {
+      "id": 3,
+      "name": "pink boho",
+      "price": 9.99,
+      "images": ["./f3.jpg"]
+    },
+    {
+      "id": 4,
+      "name": "pink heart",
+      "price": 9.99,
+      "images": ["./f4.jpg"]
+    },
+    {
+      "id": 5,
+      "name": "Red Classics",
+      "price": 9.99,
+      "images": ["./f5.jpg"]
+    },
+    {
+      "id": 6,
+      "name": "Pink Roses with Leaves",
+      "price": 12.99,
+      "images": ["./f6.jpg"]
+    },
+    {
+      "id": 7,
+      "name": "White Roses",
+      "price": 19.99,
+      "images": ["./f7.jpg"]
+    },
+    {
+      "id": 8,
+      "name": "Happy Birthday",
+      "price": 9.99,
+      "images": ["./f8.jpg"]
+    }
+  ]
+}
