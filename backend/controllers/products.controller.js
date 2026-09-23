@@ -39,6 +39,19 @@ exports.update = async (req, res) => {
   }
 };
 
+exports.setAvailability = async (req, res) => {
+  try {
+    const available = req.body.available !== false;
+    const update = { available };
+    if (!available) update.stock = 0;
+    const updated = await Product.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Product not found' });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update availability' });
+  }
+};
+
 exports.remove = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);

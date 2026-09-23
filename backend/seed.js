@@ -37,6 +37,17 @@ const seedData = async () => {
     });
     await customerUser.save();
 
+    // Create employee user
+    const employeeUser = new User({
+      firstName: 'Employee',
+      lastName: 'User',
+      email: 'employee@flowershop.com',
+      password: 'employee123',
+      role: 'employee',
+      phone: '+19876543210'
+    });
+    await employeeUser.save();
+
     // Create sample products
     const products = [
       {
@@ -141,6 +152,7 @@ const seedData = async () => {
 
     console.log('✅ Seed data created successfully!');
     console.log('👤 Admin user: admin@flowershop.com / admin123');
+    console.log('👤 Employee user: employee@flowershop.com / employee123');
     console.log('👤 Customer user: john@example.com / customer123');
     console.log('🌸 Sample products created:', products.length);
 

@@ -82,6 +82,18 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+exports.listAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('customer', 'firstName lastName email')
+      .populate('items.product')
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -92,8 +104,8 @@ exports.getOrderById = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Check if user owns the order or is admin
-    if (order.customer._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    // Check if user owns the order or is staff
+    if (order.customer._id.toString() !== req.user.id && !['admin', 'employee'].includes(req.user.role)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -112,9 +124,14 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Only admin can update order status
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' });
+    const allowed = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    // Only staff can update order status
+    if (!['admin', 'employee'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Staff access required' });
     }
 
     order.status = status;

@@ -23,11 +23,11 @@ body{
 }
   
 header {
-  @apply p-3 h-[7vh] fixed w-full  flex  items-center top-0 z-[1000] justify-between bg-pink-800;
+  @apply p-3 h-[7vh] fixed w-full flex items-center top-0 z-[1000] justify-between bg-pink-800 overflow-hidden;
 }
 
 header a {
-  @apply no-underline text-[1.5rem] p-2 m-2 transition-all duration-150 text-white;
+  @apply no-underline text-lg md:text-xl lg:text-2xl p-2 m-2 transition-all duration-150 text-white;
 }
 
 .logo {
@@ -39,17 +39,41 @@ header a {
 }
 
 .links {
-  @apply flex mx-auto hidden sm:justify-center sm:block sm:flex lg:w-1/2 transition-all duration-150;
+  @apply flex mx-auto justify-center gap-3 items-center lg:w-1/2 transition-all duration-150;
 }
 
 /* .links button{
   @apply p-2 w-full inline-block m-2  hover:bg-orange-100 hover:rounded-b-xl transition-all duration-150;
 } */
 .user{
-  @apply inline-block justify-center
+  @apply inline-flex items-center justify-center gap-2
 }
 .user button{
-  @apply inline-block rounded-4xl p-2 w-[7vh] m-2 hover:bg-orange-100
+  @apply inline-block rounded-4xl p-2 w-[7vh] m-2 hover:bg-orange-100 text-sm sm:text-base
+}
+
+@media (max-width: 640px) {
+  header {
+    @apply h-[7vh] py-1 px-3; /* keep header height fixed on small screens */
+  }
+  .links {
+    @apply hidden; /* hide menu on phone */
+  }
+  header a{
+    @apply text-sm;
+  }
+  .user button{
+    @apply p-1 m-1;
+  }
+}
+
+@media (max-width: 480px) {
+  header a{
+    @apply text-xs;
+  }
+  .user button{
+    @apply p-1 w-[5vh] m-1;
+  }
 }
 
 .hero{
@@ -64,7 +88,7 @@ header a {
 }
 
 .catalogue-container{
-  @apply max-w-6xl mx-auto
+  @apply max-w-6xl mx-auto px-2
 }
 .catalogue-container h1{
  @apply text-3xl font-bold m-8 text-center text-pink-800

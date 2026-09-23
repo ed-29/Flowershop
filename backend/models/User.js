@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     phone: String,
     role: {
       type: String,
-      enum: ['customer', 'admin'],
+      enum: ['customer', 'admin', 'employee'],
       default: 'customer'
     },
     addresses: [{
@@ -32,22 +32,18 @@ const userSchema = new mongoose.Schema(
       isDefault: { type: Boolean, default: false }
     }],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    activity: [{ type: { type: String }, message: String, meta: mongoose.Schema.Types.Mixed, date: { type: Date, default: Date.now } }]
   },
   { timestamps: true }
 );
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Compare password method

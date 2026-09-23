@@ -13,6 +13,7 @@ const productSchema = new mongoose.Schema(
     },
     stock: { type: Number, default: 0, required: true },
     inSeason: { type: Boolean, default: true },
+    available: { type: Boolean, default: true },
     rating: { type: Number, default: 0, min: 0, max: 5 },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     featured: { type: Boolean, default: false },
