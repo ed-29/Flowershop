@@ -36,4 +36,17 @@ const adminAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { auth, adminAuth };
+const staffAuth = async (req, res, next) => {
+  try {
+    await auth(req, res, () => {
+      if (!['admin', 'employee'].includes(req.user.role)) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      next();
+    });
+  } catch (error) {
+    res.status(401).json({ message: 'Authorization failed' });
+  }
+};
+
+module.exports = { auth, adminAuth, staffAuth };

@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
 import { useCart } from '../contexts/CartContext';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate, useLocation } from 'react-router-dom';
+import MapLocationSelector from './MapLocationSelector';
 
 const Checkout = () => {
-  const { items, getTotalPrice, clearCart } = useCart();
+  const { items, clearCart, removeFromCart } = useCart();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const checkoutItemId = location.state?.checkoutItemId;
+  const checkoutItems = checkoutItemId
+    ? items.filter((item) => String(item.id) === String(checkoutItemId))
+    : items;
+  const checkoutTotal = checkoutItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
   const [orderInfo, setOrderInfo] = useState({
     receiverName: '',
-    address: '',
     note: '',
-    link: '',
+    location: null,
     screenshot: ''
   });
 
@@ -18,37 +29,85 @@ const Checkout = () => {
     setOrderInfo(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleLocationSelect = (coords) => {
+    setOrderInfo(prev => ({ ...prev, location: coords }));
+  };
+
   const handleSubmitOrder = (e) => {
     e.preventDefault();
 
+    if (!orderInfo.location) {
+      alert('Please select a delivery location on the map');
+      return;
+    }
+
     const newOrder = {
       id: Date.now(),
-      items: items.map(item => ({
+      items: checkoutItems.map(item => ({
         id: item.id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
         image: item.images[0]
       })),
-      totalAmount: getTotalPrice(),
+      totalAmount: checkoutTotal,
       deliveryDate: new Date().toISOString().split('T')[0],
       receiverName: orderInfo.receiverName,
-      address: orderInfo.address,
       note: orderInfo.note,
-      link: orderInfo.link,
+      location: orderInfo.location,
       screenshot: orderInfo.screenshot,
       status: 'pending'
     };
 
-    const existingOrders = JSON.parse(localStorage.getItem('orders')) || [];
-    existingOrders.push(newOrder);
-    localStorage.setItem('orders', JSON.stringify(existingOrders));
+    // Persist order: localStorage for offline, and backend for authenticated users
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('orders')) || [];
+      existingOrders.push(newOrder);
+      localStorage.setItem('orders', JSON.stringify(existingOrders));
+    } catch (e) { console.error(e); }
 
-    clearCart();
+    if (isAuthenticated && user && user.id) {
+      // send to backend
+      (async () => {
+        try {
+          const payload = {
+            items: checkoutItems.map(i => ({ product: i.id, quantity: i.quantity })),
+            shippingAddress: {},
+            deliveryDate: newOrder.deliveryDate,
+            specialInstructions: newOrder.note,
+            paymentMethod: 'offline'
+          };
+          const res = await fetch('http://localhost:5000/api/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            console.warn('Backend order save failed');
+          }
+        } catch (err) { console.error('Failed to send order to backend', err); }
+      })();
+      // also persist per-user local storage copy
+      try {
+        const userKey = `orders_${user.id}`;
+        const userOrders = JSON.parse(localStorage.getItem(userKey)) || [];
+        userOrders.push(newOrder);
+        localStorage.setItem(userKey, JSON.stringify(userOrders));
+      } catch (e) { console.error(e); }
+    }
+
+    if (checkoutItemId) {
+      removeFromCart(checkoutItemId);
+    } else {
+      clearCart();
+    }
     navigate('/orders');
   };
 
-  if (items.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <div className="p-6">
         <h1 className="text-3xl font-bold mb-6">Checkout</h1>
@@ -79,7 +138,7 @@ const Checkout = () => {
 
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
         <h2 className="text-xl font-semibold mb-3">Order Summary</h2>
-        {items.map((item) => (
+        {checkoutItems.map((item) => (
           <div key={item.id} className="flex justify-between items-center mb-2">
             <div>
               <span className="font-medium">{item.name}</span>
@@ -92,7 +151,7 @@ const Checkout = () => {
           <div className="flex justify-between items-center">
             <span className="text-xl font-semibold">Total:</span>
             <span className="text-xl font-bold text-pink-600">
-              ${getTotalPrice().toFixed(2)}
+              ${checkoutTotal.toFixed(2)}
             </span>
           </div>
         </div>
@@ -112,18 +171,6 @@ const Checkout = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Delivery Address *</label>
-          <textarea
-            name="address"
-            value={orderInfo.address}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            rows="3"
-            required
-          />
-        </div>
-
-        <div>
           <label className="block text-sm font-medium mb-1">Note to Receiver</label>
           <textarea
             name="note"
@@ -135,15 +182,8 @@ const Checkout = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Google Maps Link to Delivery Address</label>
-          <input
-            type="url"
-            name="link"
-            value={orderInfo.link}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded"
-            placeholder="https://maps.google.com/..."
-          />
+          <label className="block text-sm font-medium mb-1">Delivery Location *</label>
+          <MapLocationSelector onLocationSelect={handleLocationSelect} />
         </div>
 
         <div>

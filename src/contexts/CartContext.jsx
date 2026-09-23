@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
@@ -24,14 +25,14 @@ const cartReducer = (state, action) => {
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: state.items.filter(item => item.id !== action.payload)
+        items: state.items.filter(item => String(item.id) !== String(action.payload))
       };
 
     case 'UPDATE_QUANTITY':
       return {
         ...state,
         items: state.items.map(item =>
-          item.id === action.payload.id
+          String(item.id) === String(action.payload.id)
             ? { ...item, quantity: action.payload.quantity }
             : item
         )
@@ -43,6 +44,12 @@ const cartReducer = (state, action) => {
         items: []
       };
 
+    case 'SET_CART':
+      return {
+        ...state,
+        items: action.payload || []
+      };
+
     default:
       return state;
   }
@@ -51,12 +58,64 @@ const cartReducer = (state, action) => {
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
   const [isOpen, setIsOpen] = React.useState(false);
+  const [cartReady, setCartReady] = React.useState(false);
+  const { isAuthenticated, user } = useAuth();
+
+  const persistCart = (items) => {
+    if (!isAuthenticated || !user?.id) return;
+    try {
+      localStorage.setItem(`cart_${user.id}`, JSON.stringify({ items }));
+    } catch (e) {
+      console.error('Failed to persist cart', e);
+    }
+  };
+
+  // Load saved cart for authenticated user
+  useEffect(() => {
+    if (isAuthenticated && user && user.id) {
+      try {
+        const saved = localStorage.getItem(`cart_${user.id}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          dispatch({ type: 'SET_CART', payload: parsed.items || parsed });
+        }
+      } catch (e) {
+        console.error('Failed to load saved cart', e);
+      }
+      setCartReady(true);
+    } else {
+      dispatch({ type: 'CLEAR_CART' });
+      setCartReady(false);
+      setIsOpen(false);
+    }
+  }, [isAuthenticated, user && user.id]);
+
+  // Persist cart whenever it changes for authenticated users
+  useEffect(() => {
+    if (!cartReady) return;
+    persistCart(state.items);
+  }, [state.items, isAuthenticated, user && user.id, cartReady]);
 
   const addToCart = (product, quantity = 1) => {
+    if (!isAuthenticated) {
+      return { success: false, message: 'Please login to add items to cart' };
+    }
     dispatch({
       type: 'ADD_TO_CART',
       payload: { ...product, quantity }
     });
+    try {
+      (async () => {
+        if (user && localStorage.getItem('token')) {
+          await fetch('http://localhost:5000/api/users/activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+            body: JSON.stringify({ type: 'cart_add', message: `Added ${product.name} x${quantity}`, meta: { productId: product.id, quantity } })
+          });
+        }
+      })();
+    } catch (e) { console.error('Failed to record activity', e); }
+    return { success: true };
   };
 
   const removeFromCart = (productId) => {

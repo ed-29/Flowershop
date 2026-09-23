@@ -6,8 +6,20 @@ const Cart = () => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart, isOpen, toggleCart } = useCart();
   const navigate = useNavigate();
 
-  const handleCheckout = () => {
-    navigate('/checkout');
+  const handleCheckout = (itemId) => {
+    toggleCart();
+    if (itemId) {
+      navigate('/checkout', { state: { checkoutItemId: itemId } });
+    } else {
+      navigate('/checkout');
+    }
+  };
+
+  const handleRemove = (item) => {
+    const confirmed = window.confirm(`Remove ${item.name} from your cart?`);
+    if (confirmed) {
+      removeFromCart(item.id);
+    }
   };
 
   if (!isOpen) {
@@ -75,15 +87,23 @@ const Cart = () => {
                 </button>
               </div>
               <div className="text-right">
-                <p className="font-semibold">
+                <p className="font-semibold mb-2">
                   ${(item.price * item.quantity).toFixed(2)}
                 </p>
-                <button
-                  onClick={() => removeFromCart(item.id)}
-                  className="text-red-500 text-sm hover:text-red-700"
-                >
-                  Remove
-                </button>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleRemove(item)}
+                    className="text-red-500 text-sm border border-red-300 px-3 py-1 rounded hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                  <button
+                    onClick={() => handleCheckout(item.id)}
+                    className="bg-pink-600 text-white text-sm px-3 py-1 rounded hover:bg-pink-700"
+                  >
+                    Checkout
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -105,10 +125,10 @@ const Cart = () => {
               Clear Cart
             </button>
             <button
-              onClick={handleCheckout}
+              onClick={() => handleCheckout()}
               className="flex-1 bg-pink-600 text-white py-2 rounded hover:bg-pink-700"
             >
-              Checkout
+              Checkout All
             </button>
           </div>
         </div>
